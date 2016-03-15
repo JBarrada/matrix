@@ -8,85 +8,46 @@
 
 #include <matrix.h>
 #include <vector.h>
+#include <threed.h>
 
-#define PI 3.14159265
+model cube;
 
-matrix pmatrix, pvmatrix;
-
-double rotationx = 0.0;
-double rotationy = 0.0;
-
-double depth_buffer[200*200];
-
-vector cube[8] = {{-1,-1,-1}, {-1,-1,1}, {-1,1,-1}, {-1,1,1}, {1,-1,-1}, {1,-1,1}, {1,1,-1}, {1,1,1}};
-int triangles[12][3] = {{1,7,5}, {1,3,7}, {1,4,3}, {1,2,4}, {3,8,7}, {3,4,8}, {5,7,8}, {5,8,6}, {1,5,6}, {1,6,2}, {2,6,8}, {2,8,4}};
-char colors[12] = {0x7, 0x7, 0xf, 0xf, 0x70, 0x70, 0xf0, 0xf0, 0xff, 0xff, 0x77, 0x77};
-
-
-vector proj[8] = {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}};
-					
+	
 void idle() {
-	/*
-	rotation += 0.001;
-	if (rotation > M_2_PI) {
-		rotation = 0;
-	}
-	render();
-	*/
-	//usleep(1000000/30.0);
+
 }
 
 void keyboard(unsigned char key, int x, int y) {
-	//printf("%c\n", key);
-	
-	if (key == 'w') {
-		rotationy += 0.01;
-	}
 	if (key == 's') {
-		rotationy -= 0.01;
+		mat_rotx(0.1, &cube.transform, &cube.transform);
+	}
+	if (key == 'w') {
+		mat_rotx(-0.1, &cube.transform, &cube.transform);
 	}
 	
-	if (rotationy > M_2_PI) {
-		rotationy = 0;
-	}
-	if (rotationy < 0) {
-		rotationy = M_2_PI;
-	}
-	
-	
-	if (key == 'd') {
-		rotationx += 0.01;
-	}
 	if (key == 'a') {
-		rotationx -= 0.01;
+		mat_roty(0.1, &cube.transform, &cube.transform);
 	}
-	
-	if (rotationx > M_2_PI) {
-		rotationx = 0;
+	if (key == 'd') {
+		mat_roty(-0.1, &cube.transform, &cube.transform);
 	}
-	if (rotationx < 0) {
-		rotationx = M_2_PI;
-	}
+
 	render();
-	
-	//printf("%f\n", rotation);
-	
-	for (int i=0; i<8; i++) {
-		//printf("(%d,%d,%2.1f) ", (int)proj[i].x, (int)proj[i].y, proj[i].z);
-	}
-	//printf("\n");
 }
 
+void draw() {
+	clear_depth_buffer();
+	draw_model(&cube);
+	printf("RENDERED\n");
+}
+
+/*
 void draw_point(vector a, char color) {
 	int offset = a.y*200+a.x;
 	if (a.z < depth_buffer[offset]) {
 		set_pixel(a.x, a.y, color);
 		depth_buffer[offset] = a.z;
 	}
-}
-
-double interpolate(double start, double end, double pos) {
-	return ((end-start)*pos) + start;
 }
 
 void scan_line(int y, vector pa, vector pb, vector pc, vector pd, char color) {
@@ -97,14 +58,17 @@ void scan_line(int y, vector pa, vector pb, vector pc, vector pd, char color) {
     int sx = (int)interpolate(pa.x, pb.x, gradient1);
     int ex = (int)interpolate(pc.x, pd.x, gradient2);
 	
-	if (ex-sx == 0) {
-		printf("fuck");
+	if (sx > ex) {
+		int temp = sx;
+		sx = ex;
+		ex = temp;
 	}
 
     // starting Z & ending Z
     double z1 = interpolate(pa.z, pb.z, gradient1);
     double z2 = interpolate(pc.z, pd.z, gradient2);
-
+	
+	
     // drawing a line from left (sx) to right (ex) 
     for (int x = sx; x < ex; x++) {
         double gradient = (x - sx) / (double)(ex - sx);
@@ -182,7 +146,7 @@ void draw() {
 	
 	for (int i=0; i<8; i++) {
 		// to worldspace
-		double cm[] = {cube[i].x, cube[i].y, cube[i].z, 1};
+		double cm[] = {p[i].x, p[i].y, p[i].z, 1};
 		matrix tmatrix;
 		mat_new(1, 4, cm, &tmatrix);
 		
@@ -202,17 +166,45 @@ void draw() {
 		proj[i].z = mpvmatrix.x[2];
 	}
 	
+	vector light = (vector){2,0,2};
+	double angles[6];
+	for (int i=0; i<6; i++) {
+		double lm[] = {n[i].x, n[i].y, n[i].z, 1};
+		matrix lmatrix;
+		mat_new(1, 4, lm, &lmatrix);
+		mat_roty(rotationy, &lmatrix, &lmatrix);
+		mat_rotx(rotationx, &lmatrix, &lmatrix);
+		vector temp_l = {lmatrix.x[0], lmatrix.x[1], lmatrix.x[2]};
+		
+		angles[i] = (((v_dot(&light, &temp_l))/(v_len(&light)*v_len(&temp_l)))+1.0)/2.0;
+		//angles[i] = (((v_dot(&light, &n[i]))/(v_len(&light)*v_len(&n[i])))+1.0)/2.0;
+		printf("%2.2f ", angles[i]);
+		
+	}
 	
-	for (int t=0; t<2; t++) {
-		int count = draw_triangle(proj[triangles[t][0]-1], proj[triangles[t][1]-1], proj[triangles[t][2]-1], colors[t]);
-		printf("T%d: %d ", t, count);
+	for (int t=0; t<12; t++) {
+		uint8_t color = angles[normals[t]]*7;
+		int count = draw_triangle(proj[triangles[t][0]-1], proj[triangles[t][1]-1], proj[triangles[t][2]-1], color<<2);
 	}
 	printf("\n");
 }
+*/
 
 void main() {
-	pmatrix_o(2.0, 2.0, 10.0, 0.0, &pmatrix);
-	mat_translate(0, 0, -5.0, &pmatrix, &pvmatrix);
+	matrix p_matrix, v_matrix;
+	//pmatrix_o(3.0, 3.0, 10.0, 0.0, &p_matrix);
+	pmatrix_p(130, 10.0, 0.0, &p_matrix);
+	mat_new(4, 4, (double[]){1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1}, &v_matrix);
+	
+	threed_init(p_matrix, v_matrix, (vector){2, 0, 2}, 3.2, 2.0);
+	
+	cube.n_points = 8;
+	cube.n_normals = 6;
+	cube.n_triangles = 12;
+	cube.points = (vector[]){{-1,-1,-1}, {-1,-1,1}, {-1,1,-1}, {-1,1,1}, {1,-1,-1}, {1,-1,1}, {1,1,-1}, {1,1,1}};
+	cube.normals = (vector[]){{0,0,1}, {0,0,-1}, {0,1,0}, {0,-1,0}, {1,0,0}, {-1,0,0}};
+	cube.triangles = (triangle[]){{0,6,4,1}, {0,2,6,1}, {0,3,2,5}, {0,1,3,5}, {2,7,6,2}, {2,3,7,2}, {4,6,7,4}, {4,7,5,4}, {0,4,5,3}, {0,5,1,3}, {1,5,7,0}, {1,7,3,0}};
+	mat_new(4, 4, (double[]){1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  0, 0, 0, 1}, &cube.transform);
 	
 	init(idle, draw, keyboard);
 }

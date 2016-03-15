@@ -80,7 +80,14 @@ int mat_translate(double x, double y, double z, matrix *a, matrix *c) {
 }
 
 int pmatrix_o(double w, double h, double zf, double zn, matrix *pmatrix) {
-	double pm[] = {1/w, 0, 0, 0,  0, 1/h, 0, 0,  0, 0, -2/(zf-zn), -(zf+zn)/(zf-zn),  0, 0, 0, 1};
+	double pm[] = {1.0/w, 0, 0, 0,  0, 1.0/h, 0, 0,  0, 0, -2/(zf-zn), -(zf+zn)/(zf-zn),  0, 0, 0, 1};
+	mat_new(4, 4, pm, pmatrix);
+	return 1;
+}
+
+int pmatrix_p(double fov, double zf, double zn, matrix *pmatrix) {
+	double s = atan(((fov/2.0)*(M_PI/180.0)));
+	double pm[] = {s, 0, 0, 0,  0, s, 0, 0,  0, 0, -1*(zf+zn)/(zf-zn), -2*(zf*zn)/(zf-zn),  0, 0, -1, 0};
 	mat_new(4, 4, pm, pmatrix);
 	return 1;
 }

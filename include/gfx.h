@@ -1,11 +1,8 @@
 #ifndef GFX_H
 #define GFX_H
 
-#define WIDTH_W 200
+#define WIDTH_W 320
 #define HEIGHT_W 200
-
-#define WIDTH_G 400
-#define HEIGHT_G 400
 
 typedef struct point {
 	double x, y;
