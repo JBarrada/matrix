@@ -40,3 +40,17 @@ double sqrt(const double fg) {
 double interpolate(double start, double end, double pos) {
 	return ((end-start)*pos) + start;
 }
+
+double dmax(double a, double b) {
+	if (a>b)
+		return a;
+	else
+		return b;
+}
+
+double dmin(double a, double b) {
+	if (a<b)
+		return a;
+	else
+		return b;
+}
