@@ -1,7 +1,7 @@
 CFLAGS=-std=gnu99
 LIBS=-Iinclude -lfreeglut -lopengl32
 
-OBJFILES = matrix.o vector.o math.o gfx.o threed.o m.o
+OBJFILES = matrix.o vector.o math.o gfx.o threed.o objects.o m.o
 
 all: clean m.exe
 
