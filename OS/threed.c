@@ -6,8 +6,6 @@
 
 #include <threed.h>
 
-#include <stdio.h>
-
 matrix p_matrix;
 matrix v_matrix;
 matrix pv_matrix;
@@ -114,8 +112,8 @@ void draw_model(model *m) {
 	}
 	
 	for (int t=0; t<m->n_triangles; t++) {
-		uint8_t color = light_angles[m->triangles[t].normal]*6+1; // do stuff with angles
-		draw_triangle(projected[m->triangles[t].a], projected[m->triangles[t].b], projected[m->triangles[t].c], color<<5);
+		uint8_t color = light_angles[m->triangles[t].normal]*31; // do stuff with angles
+		draw_triangle(projected[m->triangles[t].a], projected[m->triangles[t].b], projected[m->triangles[t].c], color);
 	}
 }
 
