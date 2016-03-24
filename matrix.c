@@ -84,10 +84,18 @@ int pmatrix_o(double w, double h, double zf, double zn, matrix *pmatrix) {
 	mat_new(4, 4, pm, pmatrix);
 	return 1;
 }
-
+/*
 int pmatrix_p(double fov, double zf, double zn, matrix *pmatrix) {
-	double s = atan(((fov/2.0)*(M_PI/180.0)));
+	double s = 0.466307658154; //atan(((fov/2.0)*(M_PI/180.0)));
 	double pm[] = {s, 0, 0, 0,  0, s, 0, 0,  0, 0, -1*(zf+zn)/(zf-zn), -2*(zf*zn)/(zf-zn),  0, 0, -1, 0};
+	mat_new(4, 4, pm, pmatrix);
+	return 1;
+}
+*/
+int pmatrix_p(double fov, double zf, double zn, matrix *pmatrix) {
+	double l=-1.6, r=1.6, t=1, b=-1;
+	
+	double pm[] = {0.466307658154, 0, 0, 0,  0, 0.466307658154, 0, 0,  0, 0, 1.0*(zf+zn)/(zf-zn), 2.0*(zf*zn)/(zf-zn),  0, 0, -1.0, 0};
 	mat_new(4, 4, pm, pmatrix);
 	return 1;
 }

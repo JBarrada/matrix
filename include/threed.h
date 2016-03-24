@@ -17,7 +17,9 @@ typedef struct model_t {
 	vector *normals;
 	triangle *triangles;
 	
-	matrix transform;
+	matrix translate;
+	matrix rotate;
+	matrix scale;
 } model;
 
 
