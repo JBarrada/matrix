@@ -4,7 +4,10 @@
 #include <string.h>
 #include <gfx.h>
 #include <math.h>
+#include <stdint.h>
 
+uint32_t palette[256];
+uint32_t screen_buffer2[WIDTH_W*HEIGHT_W];
 unsigned char screen_buffer[WIDTH_W*HEIGHT_W];
 
 void (*draw_function)();
@@ -20,7 +23,8 @@ unsigned char get_byte_color(int hexcolor) {
 
 void set_pixel(int x, int y, unsigned char c) {
 	if (x<WIDTH_W & y<HEIGHT_W & x>=0 & y>=0) {
-		screen_buffer[y*WIDTH_W+x] = c;
+		//screen_buffer[y*WIDTH_W+x] = c;
+		screen_buffer2[(y*WIDTH_W+x)] = palette[c];
 	}	
 }
 
@@ -175,12 +179,14 @@ void rectangle_filled(int x, int y, int width, int height, unsigned char c) {
 }
 
 void render() {
-	memset(screen_buffer, 0, WIDTH_W*HEIGHT_W);
+	//memset(screen_buffer, 0, WIDTH_W*HEIGHT_W);
+	memset(screen_buffer2, 0, sizeof(screen_buffer2));
 	
 	draw_function();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDrawPixels(WIDTH_W, HEIGHT_W, GL_RGB, GL_UNSIGNED_BYTE_3_3_2, screen_buffer);
+	//glDrawPixels(WIDTH_W, HEIGHT_W, GL_RGB, GL_UNSIGNED_BYTE_3_3_2, screen_buffer);
+	glDrawPixels(WIDTH_W, HEIGHT_W, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, screen_buffer2);
 	glutSwapBuffers();
 }
 
@@ -193,11 +199,18 @@ void init(void (*idle)(), void (*draw)(), void (*keyboard)(unsigned char key, in
 	
 	glutInit(&fakeargc, fakeargv);
 	glutInitWindowSize(WIDTH_W, HEIGHT_W);
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutCreateWindow("!");
 	glutIdleFunc(idle);
 	glutDisplayFunc(render);
 	glutKeyboardFunc(keyboard);
+	
+	for (int i=0; i<32; i++) {palette[i] = ((int)(i*2.09375)<<16) | ((int)(i*6.46875)<<8) | (int)(i*7.90625);}
+	for (int i=0; i<32; i++) {palette[i+32] = ((int)(i*0.4375)<<16) | ((int)(i*1.875)<<8) | (int)(i*7.3125);}
+	for (int i=0; i<32; i++) {palette[i+64] = ((int)(i*7.21875)<<16) | ((int)(i*7.3125)<<8) | (int)(i*3.15625);}
+	for (int i=0; i<32; i++) {palette[i+96] = ((int)(i*7.9375)<<16) | ((int)(i*4.28125)<<8) | (int)(i*1.6875);}
+	for (int i=0; i<32; i++) {palette[i+128] = ((int)(i*4.125)<<16) | ((int)(i*2.21875)<<8) | (int)(i*0.375);}
+	
 
 	glutMainLoop();
 }

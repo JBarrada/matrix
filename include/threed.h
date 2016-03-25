@@ -20,7 +20,12 @@ typedef struct model_t {
 	matrix translate;
 	matrix rotate;
 	matrix scale;
+	unsigned char color;
 } model;
+
+extern matrix p_matrix;
+extern matrix v_matrix;
+extern matrix pv_matrix;
 
 
 void threed_init(matrix p, matrix v, vector l, double r_w, double r_h);

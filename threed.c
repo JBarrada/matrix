@@ -122,10 +122,10 @@ void draw_model(model *m) {
 	}
 
 	for (int t=0; t<m->n_triangles; t++) {
-		if (camera_angles[m->triangles[t].normal] > 0.5) {
-			uint8_t color = light_angles[m->triangles[t].normal]*6+1; // do stuff with angles
-			draw_triangle(projected[m->triangles[t].a], projected[m->triangles[t].b], projected[m->triangles[t].c], color<<5);
-		}
+		//if (camera_angles[m->triangles[t].normal] > 0.5) {
+			uint8_t color = light_angles[m->triangles[t].normal]*32 + (32*m->color);
+			draw_triangle(projected[m->triangles[t].a], projected[m->triangles[t].b], projected[m->triangles[t].c], color);
+		//}
 	}
 }
 
