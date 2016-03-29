@@ -18,6 +18,8 @@ int mat_rotz(double val, matrix *a, matrix *c);
 int mat_scale(double x, double y, double z, matrix *a, matrix *c);
 int mat_translate(double x, double y, double z, matrix *a, matrix *c);
 
+int mat_getvector(matrix *a, matrix *b);
+
 int pmatrix_o(double w, double h, double zf, double zn, matrix *pmatrix);
 int pmatrix_p(double fov, double zf, double zn, matrix *pmatrix);
 

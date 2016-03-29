@@ -99,9 +99,9 @@ void draw_model(model *m) {
 	for (int p=0; p<m->n_points; p++) {
 		matrix temp;
 		mat_new(1, 4, (double[]){m->points[p].x, m->points[p].y, m->points[p].z, 1}, &temp);
-		mat_mult(&m->translate, &temp, &temp);
-		mat_mult(&m->rotate, &temp, &temp);
-		mat_mult(&m->scale, &temp, &temp);
+		mat_mult(&m->transform, &temp, &temp);
+		//mat_mult(&m->rotate, &temp, &temp);
+		//mat_mult(&m->scale, &temp, &temp);
 		//printf("(%3.2f,%3.2f,%3.2f) ", temp.x[0], temp.x[1], temp.x[2]);
 		mat_mult(&pv_matrix, &temp, &temp);
 		projected[p] = (vector){(temp.x[0]+(render_width/2.0))*(SCREEN_W/render_width), (temp.x[1]+(render_height/2.0))*(SCREEN_W/render_width), temp.x[2]};
@@ -113,7 +113,9 @@ void draw_model(model *m) {
 	for (int n=0; n<m->n_normals; n++) {
 		matrix temp;
 		mat_new(1, 4, (double[]){m->normals[n].x, m->normals[n].y, m->normals[n].z, 1}, &temp);
-		mat_mult(&m->rotate, &temp, &temp);
+		matrix vectormatrix;
+		mat_getvector(&m->transform, &vectormatrix);
+		mat_mult(&vectormatrix, &temp, &temp);
 		
 		vector transformed = {temp.x[0], temp.x[1], temp.x[2]};
 		vector camera = {0, 0, 1};

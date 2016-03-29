@@ -79,6 +79,14 @@ int mat_translate(double x, double y, double z, matrix *a, matrix *c) {
 	return 1;
 }
 
+int mat_getvector(matrix *a, matrix *b) {
+	memcpy(&b->x, &a->x, sizeof(double)*16);
+	b->x[3] = 0;
+	b->x[7] = 0;
+	b->x[11] = 0;
+	return 1;
+}
+
 int pmatrix_o(double w, double h, double zf, double zn, matrix *pmatrix) {
 	double pm[] = {1.0/w, 0, 0, 0,  0, 1.0/h, 0, 0,  0, 0, -2/(zf-zn), -(zf+zn)/(zf-zn),  0, 0, 0, 1};
 	mat_new(4, 4, pm, pmatrix);

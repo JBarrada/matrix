@@ -80,17 +80,17 @@ void main() {
 	threed_init(p_matrix, v_matrix, (vector){3, 0, 0}, 3.2, 2.0);
 	
 	memcpy(&cube, &cube_base, sizeof(cube_base));
-	mat_scale(.5,.5,.5, &cube.scale, &cube.scale);
+	mat_scale(.5,.5,.5, &cube.transform, &cube.transform);
 	//mat_translate(0, 0, 0, &cube.translate, &cube.translate);
 	
 	memcpy(&cube2, &cube_base, sizeof(cube_base));
-	mat_scale(.5,.5,.5, &cube2.scale, &cube2.scale);
-	mat_translate(0, 0, 2, &cube2.translate, &cube2.translate);
+	mat_scale(.5,.5,.5, &cube2.transform, &cube2.transform);
+	mat_translate(0, 0, 1, &cube2.transform, &cube2.transform);
 	cube2.color = 1; // red
 	
 	memcpy(&cube3, &cube_base, sizeof(cube_base));
-	mat_scale(.5,.5,.5, &cube3.scale, &cube3.scale);
-	mat_translate(2, 0, 0, &cube3.translate, &cube3.translate);
+	mat_scale(.5,.5,.5, &cube3.transform, &cube3.transform);
+	mat_translate(1, 0, 0, &cube3.transform, &cube3.transform);
 	cube3.color = 2; // blue
 	
 	
