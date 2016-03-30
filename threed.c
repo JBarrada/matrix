@@ -28,9 +28,10 @@ void threed_init(matrix p, matrix v, vector l, double r_w, double r_h) {
 }
 
 void draw_point(vector a, char color) {
-	if (a.y>SCREEN_H || a.y<0 || a.x>SCREEN_W || a.x<0)
+	if (((int)a.y>=SCREEN_H) || ((int)a.y<0) || ((int)a.x>=SCREEN_W) || ((int)a.x<0))
 		return;
-	int offset = a.y*SCREEN_W+a.x;
+	unsigned int offset = a.y*SCREEN_W+a.x;
+	
 	if (a.z < depth_buffer[offset]) {
 		set_pixel(a.x, a.y, color);
 		depth_buffer[offset] = a.z;
@@ -95,39 +96,38 @@ void draw_triangle(vector p1, vector p2, vector p3, char color) {
 
 void draw_model(model *m) {
 	vector projected[m->n_points];
-	//printf("--NEWRENDER--\n");
 	for (int p=0; p<m->n_points; p++) {
 		matrix temp;
 		mat_new(1, 4, (double[]){m->points[p].x, m->points[p].y, m->points[p].z, 1}, &temp);
 		mat_mult(&m->transform, &temp, &temp);
-		//mat_mult(&m->rotate, &temp, &temp);
-		//mat_mult(&m->scale, &temp, &temp);
-		//printf("(%3.2f,%3.2f,%3.2f) ", temp.x[0], temp.x[1], temp.x[2]);
 		mat_mult(&pv_matrix, &temp, &temp);
 		projected[p] = (vector){(temp.x[0]+(render_width/2.0))*(SCREEN_W/render_width), (temp.x[1]+(render_height/2.0))*(SCREEN_W/render_width), temp.x[2]};
-		//printf("(%3.2f,%3.2f,%3.2f)\n", temp.x[0], temp.x[1], temp.x[2]);
 	}
 	
 	double camera_angles[m->n_normals];
 	double light_angles[m->n_normals];
 	for (int n=0; n<m->n_normals; n++) {
-		matrix temp;
+		matrix temp, vectormatrix;
 		mat_new(1, 4, (double[]){m->normals[n].x, m->normals[n].y, m->normals[n].z, 1}, &temp);
-		matrix vectormatrix;
 		mat_getvector(&m->transform, &vectormatrix);
 		mat_mult(&vectormatrix, &temp, &temp);
-		
 		vector transformed = {temp.x[0], temp.x[1], temp.x[2]};
-		vector camera = {0, 0, 1};
+		
+		mat_new(1, 4, (double[]){0, 0, -1, 1}, &temp);
+		mat_mult(&v_matrix, &temp, &temp);
+		vector camera = {temp.x[0], temp.x[1], temp.x[2]};
+		//vector camera = {0,0,1};
+		printf("(%3.2f, %3.2f, %3.2f)\n", camera.x, camera.y, camera.z);
+		
 		light_angles[n] = (((v_dot(&light, &transformed))/(v_len(&light)*v_len(&transformed)))+1.0)/2.0;
 		camera_angles[n] = (((v_dot(&camera, &transformed))/(v_len(&camera)*v_len(&transformed)))+1.0)/2.0;
 	}
 
 	for (int t=0; t<m->n_triangles; t++) {
-		//if (camera_angles[m->triangles[t].normal] > 0.5) {
+		if (camera_angles[m->triangles[t].normal] > 0.5) {
 			uint8_t color = light_angles[m->triangles[t].normal]*32 + (32*m->color);
 			draw_triangle(projected[m->triangles[t].a], projected[m->triangles[t].b], projected[m->triangles[t].c], color);
-		//}
+		}
 	}
 }
 
