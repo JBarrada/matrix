@@ -80,10 +80,11 @@ int mat_translate(double x, double y, double z, matrix *a, matrix *c) {
 }
 
 int mat_getvector(matrix *a, matrix *b) {
-	memcpy(&b->x, &a->x, sizeof(double)*16);
+	memcpy(&b, &a, sizeof(matrix));
 	b->x[3] = 0;
 	b->x[7] = 0;
 	b->x[11] = 0;
+	b->x[15] = 1;
 	return 1;
 }
 

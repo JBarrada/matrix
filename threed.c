@@ -107,13 +107,14 @@ void draw_model(model *m) {
 	double camera_angles[m->n_normals];
 	double light_angles[m->n_normals];
 	for (int n=0; n<m->n_normals; n++) {
-		matrix temp, vectormatrix;
+		matrix temp, vectormatrix, cameramx;
 		mat_new(1, 4, (double[]){m->normals[n].x, m->normals[n].y, m->normals[n].z, 1}, &temp);
 		mat_getvector(&m->transform, &vectormatrix);
 		mat_mult(&vectormatrix, &temp, &temp);
 		vector transformed = {temp.x[0], temp.x[1], temp.x[2]};
 		
 		mat_new(1, 4, (double[]){0, 0, -1, 1}, &temp);
+		//mat_getvector(&v_matrix, &cameramx);
 		mat_mult(&v_matrix, &temp, &temp);
 		vector camera = {temp.x[0], temp.x[1], temp.x[2]};
 		//vector camera = {0,0,1};
@@ -124,7 +125,7 @@ void draw_model(model *m) {
 	}
 
 	for (int t=0; t<m->n_triangles; t++) {
-		if (camera_angles[m->triangles[t].normal] > 0.5) {
+		if (camera_angles[m->triangles[t].normal] <= 0.5) {
 			uint8_t color = light_angles[m->triangles[t].normal]*32 + (32*m->color);
 			draw_triangle(projected[m->triangles[t].a], projected[m->triangles[t].b], projected[m->triangles[t].c], color);
 		}
